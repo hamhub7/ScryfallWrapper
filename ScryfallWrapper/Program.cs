@@ -2,5 +2,5 @@
 using ScryfallWrapper.Requests;
 
 Scryfall scryfall = new();
-HttpResponseMessage response = await scryfall.GetCardsCodeNumber("dmu", "64", format: "text");
+HttpResponseMessage response = await scryfall.GetCatalogCardNames();
 Console.WriteLine(await response.Content.ReadAsStringAsync());
