@@ -20,6 +20,9 @@ namespace ScryfallWrapper.Requests
         /// </summary>
         /// <param name="format">The data format to return. This method only supports json.</param>
         /// <param name="pretty">If true, the returned JSON will be prettified. Avoid using for production code.</param>
+        /// <exception cref="ScryfallException">Thrown when the API returns an error</exception>
+        /// <exception cref="NullReferenceException">Thrown when a cast fails</exception>
+        /// <exception cref="Exception">Thrown when an unexpected type is received</exception>
         public async Task<ScryList<CardSymbol>> GetSymbology(string? format = null, string? pretty = null)
         {
             NameValueCollection query = HttpUtility.ParseQueryString("");
@@ -51,7 +54,6 @@ namespace ScryfallWrapper.Requests
             }
         }
 
-        // TODO: this guy
         /// <summary>
         /// Parses the given mana cost parameter and returns Scryfall’s interpretation.
         /// The server understands most community shorthand for mana costs(such as 2WW for {2}{W}{W}). Symbols can also be out of order, lowercase, or have multiple colorless costs (such as 2{g}2 for {4}{G}).
@@ -60,7 +62,10 @@ namespace ScryfallWrapper.Requests
         /// <param name="cost">The mana string to parse.</param>
         /// <param name="format">The data format to return. This method only supports json.</param>
         /// <param name="pretty">If true, the returned JSON will be prettified. Avoid using for production code.</param>
-        public async Task<HttpResponseMessage> GetSymbology(string cost, string? format = null, string? pretty = null)
+        /// <exception cref="ScryfallException">Thrown when the API returns an error</exception>
+        /// <exception cref="NullReferenceException">Thrown when a cast fails</exception>
+        /// <exception cref="Exception">Thrown when an unexpected type is received</exception>
+        public async Task<ManaCost> GetSymbology(string cost, string? format = null, string? pretty = null)
         {
             NameValueCollection query = HttpUtility.ParseQueryString("");
             query["cost"] = cost;
@@ -70,7 +75,25 @@ namespace ScryfallWrapper.Requests
             {
                 Query = query.ToString()
             };
-            return await _httpClient.GetAsync(builder.Uri);
+
+            HttpResponseMessage response = await _httpClient.GetAsync(builder.Uri);
+            string json = await response.Content.ReadAsStringAsync();
+            JObject jObject = JObject.Parse(json);
+            string? objectValue = (string?)jObject["object"];
+
+            if (objectValue == "mana_cost")
+            {
+                ManaCost? manaCost = jObject.ToObject<ManaCost>();
+                return manaCost ?? throw new NullReferenceException();
+            }
+            else if (objectValue == "error")
+            {
+                throw jObject.ToObject<ScryfallException>() ?? throw new NullReferenceException();
+            }
+            else
+            {
+                throw new Exception($"Unexpected type received: {objectValue}");
+            }
         }
     }
 }

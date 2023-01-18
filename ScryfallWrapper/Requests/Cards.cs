@@ -127,7 +127,6 @@ namespace ScryfallWrapper.Requests
             }
         }
 
-        // TODO: this one
         /// <summary>
         /// Returns a Catalog object containing up to 20 full English card names that could be autocompletions of the given string parameter.
         /// This method is designed for creating assistive UI elements that allow users to free-type card names.
@@ -139,7 +138,10 @@ namespace ScryfallWrapper.Requests
         /// <param name="format">The data format to return. This method only supports json.</param>
         /// <param name="pretty">If true, the returned JSON will be prettified. Avoid using for production code.</param>
         /// <param name="includeExtras">If true, extra cards (tokens, planes, vanguards, etc) will be included. Defaults to false.</param>
-        public async Task<HttpResponseMessage> GetCardsAutocomplete(string q, string? format = null, bool? pretty = null, bool? includeExtras = null)
+        /// <exception cref="ScryfallException">Thrown when the API returns an error</exception>
+        /// <exception cref="NullReferenceException">Thrown when a cast fails</exception>
+        /// <exception cref="Exception">Thrown when an unexpected type is received</exception>
+        public async Task<Catalog> GetCardsAutocomplete(string q, string? format = null, bool? pretty = null, bool? includeExtras = null)
         {
             NameValueCollection query = HttpUtility.ParseQueryString("");
             query["q"] = q;
@@ -150,7 +152,25 @@ namespace ScryfallWrapper.Requests
             {
                 Query = query.ToString()
             };
-            return await _httpClient.GetAsync(builder.Uri);
+
+            HttpResponseMessage response = await _httpClient.GetAsync(builder.Uri);
+            string json = await response.Content.ReadAsStringAsync();
+            JObject jObject = JObject.Parse(json);
+            string? objectValue = (string?)jObject["object"];
+
+            if (objectValue == "catalog")
+            {
+                Catalog? catalog = jObject.ToObject<Catalog>();
+                return catalog ?? throw new NullReferenceException();
+            }
+            else if (objectValue == "error")
+            {
+                throw jObject.ToObject<ScryfallException>() ?? throw new NullReferenceException();
+            }
+            else
+            {
+                throw new Exception($"Unexpected type received: {objectValue}");
+            }
         }
 
         /// <summary>
