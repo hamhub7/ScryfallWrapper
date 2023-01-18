@@ -249,7 +249,7 @@ namespace ScryfallWrapper.Objects
         /// <summary>
         /// This card’s frame effects, if any.
         /// </summary>
-        public string? Frame_Effects { get; set; }
+        public string[]? Frame_Effects { get; set; }
 
         /// <summary>
         /// This card's frame layout.
