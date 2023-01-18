@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using ScryfallWrapper.Errors;
+using ScryfallWrapper.Objects;
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
@@ -17,7 +20,7 @@ namespace ScryfallWrapper.Requests
         /// </summary>
         /// <param name="format">The data format to return. This method only supports json.</param>
         /// <param name="pretty">If true, the returned JSON will be prettified. Avoid using for production code.</param>
-        public async Task<HttpResponseMessage> GetSymbology(string? format = null, string? pretty = null)
+        public async Task<ScryList<CardSymbol>> GetSymbology(string? format = null, string? pretty = null)
         {
             NameValueCollection query = HttpUtility.ParseQueryString("");
             if (format is not null) query["format"] = format;
@@ -26,9 +29,29 @@ namespace ScryfallWrapper.Requests
             {
                 Query = query.ToString()
             };
-            return await _httpClient.GetAsync(builder.Uri);
+
+            HttpResponseMessage response = await _httpClient.GetAsync(builder.Uri);
+            string json = await response.Content.ReadAsStringAsync();
+            JObject jObject = JObject.Parse(json);
+            string? objectValue = (string?)jObject["object"];
+
+            if (objectValue == "list")
+            {
+                // TODO: double check this guy
+                ScryList<CardSymbol>? list = jObject.ToObject<ScryList<CardSymbol>>();
+                return list ?? throw new NullReferenceException();
+            }
+            else if (objectValue == "error")
+            {
+                throw jObject.ToObject<ScryfallException>() ?? throw new NullReferenceException();
+            }
+            else
+            {
+                throw new Exception($"Unexpected type received: {objectValue}");
+            }
         }
 
+        // TODO: this guy
         /// <summary>
         /// Parses the given mana cost parameter and returns Scryfall’s interpretation.
         /// The server understands most community shorthand for mana costs(such as 2WW for {2}{W}{W}). Symbols can also be out of order, lowercase, or have multiple colorless costs (such as 2{g}2 for {4}{G}).
