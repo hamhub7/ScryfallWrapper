@@ -16,7 +16,7 @@ namespace ScryfallWrapper.Objects
         /// <summary>
         /// An alternate version of this symbol, if it is possible to write it without curly braces.
         /// </summary>
-        public string? LooseVariant { get; set; }
+        public string? Loose_Variant { get; set; }
 
         /// <summary>
         /// An English snippet that describes this symbol. Appropriate for use in alt text or other accessible communication formats.
@@ -31,7 +31,7 @@ namespace ScryfallWrapper.Objects
         /// <summary>
         /// True if this is a mana symbol.
         /// </summary>
-        public bool RepresentsMana { get; set; }
+        public bool Represents_Mana { get; set; }
 
         /// <summary>
         /// A decimal number representing this symbol’s converted mana cost. Note that mana symbols from funny sets can have fractional converted mana costs.
@@ -41,7 +41,7 @@ namespace ScryfallWrapper.Objects
         /// <summary>
         /// True if this symbol appears in a mana cost on any Magic card. For example {20} has this field set to false because {20} only appears in Oracle text, not mana costs.
         /// </summary>
-        public bool AppearsInManaCosts { get; set; }
+        public bool Appears_In_Mana_Costs { get; set; }
 
         /// <summary>
         /// True if this symbol is only used on funny cards or Un-cards.
@@ -56,12 +56,12 @@ namespace ScryfallWrapper.Objects
         /// <summary>
         /// An array of plaintext versions of this symbol that Gatherer uses on old cards to describe original printed text. For example: {W} has ["oW", "ooW"] as alternates.
         /// </summary>
-        public string? GathererAlternative { get; set; }
+        public string? Gatherer_Alternative { get; set; }
 
         /// <summary>
         /// A URI to an SVG image of this symbol on Scryfall’s CDNs.
         /// </summary>
-        public string? SvgUri { get; set; }
+        public string? Svg_Uri { get; set; }
     }
 
     public class ManaCost

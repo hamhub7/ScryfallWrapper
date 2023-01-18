@@ -16,7 +16,7 @@ namespace ScryfallWrapper.Objects
         /// <summary>
         /// The date when the ruling or note was published.
         /// </summary>
-        public string PublishedAt { get; set; }
+        public string Published_At { get; set; }
 
         /// <summary>
         /// The text of the ruling.

@@ -36,12 +36,12 @@ namespace ScryfallWrapper.Objects
         /// <summary>
         /// The URI that hosts this bulk file for fetching.
         /// </summary>
-        public string DownloadUri { get; set; }
+        public string Download_Uri { get; set; }
 
         /// <summary>
         /// The time when this file was last updated.
         /// </summary>
-        public string UpdatedAt { get; set; }
+        public string Updated_At { get; set; }
 
         /// <summary>
         /// The size of this file in integer bytes.
@@ -51,11 +51,11 @@ namespace ScryfallWrapper.Objects
         /// <summary>
         /// The MIME type of this file.
         /// </summary>
-        public string ContentType { get; set; }
+        public string Content_Type { get; set; }
 
         /// <summary>
         /// The Content-Encoding encoding that will be used to transmit this file when you download it.
         /// </summary>
-        public string ContentEncoding { get; set; }
+        public string Content_Encoding { get; set; }
     }
 }

@@ -16,7 +16,7 @@ namespace ScryfallWrapper.Objects
         /// <summary>
         /// The number of items in the data array.
         /// </summary>
-        public int TotalValue { get; set; }
+        public int Total_Value { get; set; }
 
         /// <summary>
         /// An array of datapoints, as strings.

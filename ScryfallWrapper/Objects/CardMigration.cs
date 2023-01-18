@@ -21,22 +21,22 @@ namespace ScryfallWrapper.Objects
         /// <summary>
         /// The date this migration was performed.
         /// </summary>
-        public string CreatedAt { get; set; }
+        public string Created_At { get; set; }
 
         /// <summary>
         /// A computer-readable indicator of the migration strategy. See above.
         /// </summary>
-        public string MigrationStrategy { get; set; }
+        public string Migration_Strategy { get; set; }
 
         /// <summary>
         /// The id of the affected API Card object.
         /// </summary>
-        public string OldScryfallId { get; set; }
+        public string Old_Scryfall_Id { get; set; }
 
         /// <summary>
         /// The replacement id of the API Card object if this is a merge.
         /// </summary>
-        public string? NewScryfallId { get; set; }
+        public string? New_Scryfall_Id { get; set; }
 
         /// <summary>
         /// A note left by the Scryfall team about this migration.

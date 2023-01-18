@@ -21,12 +21,12 @@ namespace ScryfallWrapper.Objects
         /// <summary>
         /// The unique code for this set on MTGO, which may differ from the regular code.
         /// </summary>
-        public string? MtgoCode { get; set; }
+        public string? Mtgo_Code { get; set; }
 
         /// <summary>
         /// This set’s ID on TCGplayer’s API, also known as the groupId.
         /// </summary>
-        public int? TcgplayerId { get; set; }
+        public int? Tcgplayer_Id { get; set; }
 
         /// <summary>
         /// The English name of the set.
@@ -36,17 +36,17 @@ namespace ScryfallWrapper.Objects
         /// <summary>
         /// A computer-readable classification for this set. See below.
         /// </summary>
-        public string SetType { get; set; }
+        public string Set_Type { get; set; }
 
         /// <summary>
         /// The date the set was released or the first card was printed in the set (in GMT-8 Pacific time).
         /// </summary>
-        public string? ReleasedAt { get; set; }
+        public string? Released_At { get; set; }
 
         /// <summary>
         /// The block code for this set, if any.
         /// </summary>
-        public string? BlockCode { get; set; }
+        public string? Block_Code { get; set; }
 
         /// <summary>
         /// The block or group name code for this set, if any.
@@ -56,17 +56,17 @@ namespace ScryfallWrapper.Objects
         /// <summary>
         /// The set code for the parent set, if any. promo and token sets often have a parent set.
         /// </summary>
-        public string? ParentSetCode { get; set; }
+        public string? Parent_Set_Code { get; set; }
 
         /// <summary>
         /// The number of cards in this set.
         /// </summary>
-        public int CardCount { get; set; }
+        public int Card_Count { get; set; }
 
         /// <summary>
         /// The denominator for the set’s printed collector numbers.
         /// </summary>
-        public int? PrintedSize { get; set; }
+        public int? Printed_Size { get; set; }
 
         /// <summary>
         /// True if this set was only released in a video game.
@@ -76,17 +76,17 @@ namespace ScryfallWrapper.Objects
         /// <summary>
         /// True if this set contains only foil cards.
         /// </summary>
-        public bool FoilOnly { get; set; }
+        public bool Foil_Only { get; set; }
 
         /// <summary>
         /// True if this set contains only nonfoil cards.
         /// </summary>
-        public bool NonfoilOnly { get; set; }
+        public bool Nonfoil_Only { get; set; }
 
         /// <summary>
         /// A link to this set’s permapage on Scryfall’s website.
         /// </summary>
-        public string ScryfallUri { get; set; }
+        public string Scryfall_Uri { get; set; }
 
         /// <summary>
         /// 	A link to this set object on Scryfall’s API.
@@ -96,11 +96,11 @@ namespace ScryfallWrapper.Objects
         /// <summary>
         /// A URI to an SVG file for this set’s icon on Scryfall’s CDN. Hotlinking this image isn’t recommended, because it may change slightly over time. You should download it and use it locally for your particular user interface needs.
         /// </summary>
-        public string IconSvgUri { get; set; }
+        public string Icon_Svg_Uri { get; set; }
 
         /// <summary>
         /// A Scryfall API URI that you can request to begin paginating over the cards in this set.
         /// </summary>
-        public string SearchUri { get; set; }
+        public string Search_Uri { get; set; }
     }
 }
