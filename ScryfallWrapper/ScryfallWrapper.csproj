@@ -10,6 +10,7 @@
     <Copyright>MIT License</Copyright>
     <RepositoryUrl>https://github.com/hamhub7/ScryfallWrapper/tree/master/ScryfallWrapper</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
