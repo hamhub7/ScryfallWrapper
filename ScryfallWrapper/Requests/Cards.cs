@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using ScryfallWrapper.Errors;
+using ScryfallWrapper.Objects;
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
@@ -27,7 +30,10 @@ namespace ScryfallWrapper.Requests
         /// <param name="page">The page number to return, default 1.</param>
         /// <param name="format">The data format to return: json or csv. Defaults to json.</param>
         /// <param name="pretty">If true, the returned JSON will be prettified. Avoid using for production code.</param>
-        public async Task<HttpResponseMessage> GetCardsSearch(string q, string? unique = null, string? order = null, string? dir = null, bool? includeExtras = null, bool? includeMultilinguals = null, bool? includeVariations = null, int? page = null, string? format = null, bool? pretty = null)
+        /// <exception cref="ScryfallException">Thrown when the API returns an error</exception>
+        /// <exception cref="NullReferenceException">Thrown when a cast fails</exception>
+        /// <exception cref="Exception">Thrown when an unexpected type is received</exception>
+        public async Task<ScryList<Card>> GetCardsSearch(string q, string? unique = null, string? order = null, string? dir = null, bool? includeExtras = null, bool? includeMultilinguals = null, bool? includeVariations = null, int? page = null, string? format = null, bool? pretty = null)
         {
             NameValueCollection query = HttpUtility.ParseQueryString("");
             query["q"] = q;
@@ -44,7 +50,26 @@ namespace ScryfallWrapper.Requests
             {
                 Query = query.ToString()
             };
-            return await _httpClient.GetAsync(builder.Uri);
+
+            HttpResponseMessage response = await _httpClient.GetAsync(builder.Uri);
+            string json = await response.Content.ReadAsStringAsync();
+            JObject jObject = JObject.Parse(json);
+            string? objectValue = (string?)jObject["object"];
+
+            if (objectValue == "list")
+            {
+                // TODO: double check this guy
+                ScryList<Card>? list = jObject.ToObject<ScryList<Card>>();
+                return list ?? throw new NullReferenceException();
+            }
+            else if (objectValue == "error")
+            {
+                throw jObject.ToObject<ScryfallException>() ?? throw new NullReferenceException();
+            }
+            else
+            {
+                throw new Exception($"Unexpected type received: {objectValue}");
+            }
         }
 
         /// <summary>
@@ -62,7 +87,10 @@ namespace ScryfallWrapper.Requests
         /// <param name="face">If using the image format and this parameter has the value back, the back face of the card will be returned. Will return a 422 if this card has no back face.</param>
         /// <param name="version">The image version to return when using the image format: small, normal, large, png, art_crop, or border_crop. Defaults to large.</param>
         /// <param name="pretty">If true, the returned JSON will be prettified. Avoid using for production code.</param>
-        public async Task<HttpResponseMessage> GetCardsNamed(string? exact = null, string? fuzzy = null, string? set = null, string? format = null, string? face = null, string? version = null, bool? pretty = null)
+        /// <exception cref="ScryfallException">Thrown when the API returns an error</exception>
+        /// <exception cref="NullReferenceException">Thrown when a cast fails</exception>
+        /// <exception cref="Exception">Thrown when an unexpected type is received</exception>
+        public async Task<Card> GetCardsNamed(string? exact = null, string? fuzzy = null, string? set = null, string? format = null, string? face = null, string? version = null, bool? pretty = null)
         {
             if (exact is null && fuzzy is null) throw new NullReferenceException();
 
@@ -78,9 +106,28 @@ namespace ScryfallWrapper.Requests
             {
                 Query = query.ToString()
             };
-            return await _httpClient.GetAsync(builder.Uri);
+
+            HttpResponseMessage response = await _httpClient.GetAsync(builder.Uri);
+            string json = await response.Content.ReadAsStringAsync();
+            JObject jObject = JObject.Parse(json);
+            string? objectValue = (string?)jObject["object"];
+
+            if (objectValue == "card")
+            {
+                Card? card = jObject.ToObject<Card>();
+                return card ?? throw new NullReferenceException();
+            }
+            else if (objectValue == "error")
+            {
+                throw jObject.ToObject<ScryfallException>() ?? throw new NullReferenceException();
+            }
+            else
+            {
+                throw new Exception($"Unexpected type received: {objectValue}");
+            }
         }
 
+        // TODO: this one
         /// <summary>
         /// Returns a Catalog object containing up to 20 full English card names that could be autocompletions of the given string parameter.
         /// This method is designed for creating assistive UI elements that allow users to free-type card names.
@@ -115,7 +162,10 @@ namespace ScryfallWrapper.Requests
         /// <param name="face">If using the image format and this parameter has the value back, the back face of the card will be returned. Will return a 422 if this card has no back face.</param>
         /// <param name="version">The image version to return when using the image format: small, normal, large, png, art_crop, or border_crop. Defaults to large.</param>
         /// <param name="pretty">If true, the returned JSON will be prettified. Avoid using for production code.</param>
-        public async Task<HttpResponseMessage> GetCardsRandom(string? q = null, string? format = null, string? face = null, string? version = null, string? pretty = null)
+        /// <exception cref="ScryfallException">Thrown when the API returns an error</exception>
+        /// <exception cref="NullReferenceException">Thrown when a cast fails</exception>
+        /// <exception cref="Exception">Thrown when an unexpected type is received</exception>
+        public async Task<Card> GetCardsRandom(string? q = null, string? format = null, string? face = null, string? version = null, string? pretty = null)
         {
             NameValueCollection query = HttpUtility.ParseQueryString("");
             if(q is not null) query["q"] = q;
@@ -127,7 +177,25 @@ namespace ScryfallWrapper.Requests
             {
                 Query = query.ToString()
             };
-            return await _httpClient.GetAsync(builder.Uri);
+
+            HttpResponseMessage response = await _httpClient.GetAsync(builder.Uri);
+            string json = await response.Content.ReadAsStringAsync();
+            JObject jObject = JObject.Parse(json);
+            string? objectValue = (string?)jObject["object"];
+
+            if (objectValue == "card")
+            {
+                Card? card = jObject.ToObject<Card>();
+                return card ?? throw new NullReferenceException();
+            }
+            else if (objectValue == "error")
+            {
+                throw jObject.ToObject<ScryfallException>() ?? throw new NullReferenceException();
+            }
+            else
+            {
+                throw new Exception($"Unexpected type received: {objectValue}");
+            }
         }
 
         //TODO: collection
@@ -142,7 +210,10 @@ namespace ScryfallWrapper.Requests
         /// <param name="face">If using the image format and this parameter has the value back, the back face of the card will be returned. Will return a 422 if this card has no back face.</param>
         /// <param name="version">The image version to return when using the image format: small, normal, large, png, art_crop, or border_crop. Defaults to large.</param>
         /// <param name="pretty">If true, the returned JSON will be prettified. Avoid using for production code.</param>
-        public async Task<HttpResponseMessage> GetCardsCodeNumber(string code, string number, string? lang = null, string? format = null, string? face = null, string? version = null, string? pretty = null)
+        /// <exception cref="ScryfallException">Thrown when the API returns an error</exception>
+        /// <exception cref="NullReferenceException">Thrown when a cast fails</exception>
+        /// <exception cref="Exception">Thrown when an unexpected type is received</exception>
+        public async Task<Card> GetCardsCodeNumber(string code, string number, string? lang = null, string? format = null, string? face = null, string? version = null, string? pretty = null)
         {
             NameValueCollection query = HttpUtility.ParseQueryString("");
             if (format is not null) query["format"] = format;
@@ -153,7 +224,25 @@ namespace ScryfallWrapper.Requests
             {
                 Query = query.ToString()
             };
-            return await _httpClient.GetAsync(builder.Uri);
+
+            HttpResponseMessage response = await _httpClient.GetAsync(builder.Uri);
+            string json = await response.Content.ReadAsStringAsync();
+            JObject jObject = JObject.Parse(json);
+            string? objectValue = (string?)jObject["object"];
+
+            if (objectValue == "card")
+            {
+                Card? card = jObject.ToObject<Card>();
+                return card ?? throw new NullReferenceException();
+            }
+            else if (objectValue == "error")
+            {
+                throw jObject.ToObject<ScryfallException>() ?? throw new NullReferenceException();
+            }
+            else
+            {
+                throw new Exception($"Unexpected type received: {objectValue}");
+            }
         }
 
         /// <summary>
@@ -164,7 +253,10 @@ namespace ScryfallWrapper.Requests
         /// <param name="face">If using the image format and this parameter has the value back, the back face of the card will be returned. Will return a 422 if this card has no back face.</param>
         /// <param name="version">The image version to return when using the image format: small, normal, large, png, art_crop, or border_crop. Defaults to large.</param>
         /// <param name="pretty">If true, the returned JSON will be prettified. Avoid using for production code.</param>
-        public async Task<HttpResponseMessage> GetCardsMultiverseId(int id, string? format = null, string? face = null, string? version = null, string? pretty = null)
+        /// <exception cref="ScryfallException">Thrown when the API returns an error</exception>
+        /// <exception cref="NullReferenceException">Thrown when a cast fails</exception>
+        /// <exception cref="Exception">Thrown when an unexpected type is received</exception>
+        public async Task<Card> GetCardsMultiverseId(int id, string? format = null, string? face = null, string? version = null, string? pretty = null)
         {
             NameValueCollection query = HttpUtility.ParseQueryString("");
             if (format is not null) query["format"] = format;
@@ -175,7 +267,25 @@ namespace ScryfallWrapper.Requests
             {
                 Query = query.ToString()
             };
-            return await _httpClient.GetAsync(builder.Uri);
+
+            HttpResponseMessage response = await _httpClient.GetAsync(builder.Uri);
+            string json = await response.Content.ReadAsStringAsync();
+            JObject jObject = JObject.Parse(json);
+            string? objectValue = (string?)jObject["object"];
+
+            if (objectValue == "card")
+            {
+                Card? card = jObject.ToObject<Card>();
+                return card ?? throw new NullReferenceException();
+            }
+            else if (objectValue == "error")
+            {
+                throw jObject.ToObject<ScryfallException>() ?? throw new NullReferenceException();
+            }
+            else
+            {
+                throw new Exception($"Unexpected type received: {objectValue}");
+            }
         }
 
         /// <summary>
@@ -186,7 +296,10 @@ namespace ScryfallWrapper.Requests
         /// <param name="face">If using the image format and this parameter has the value back, the back face of the card will be returned. Will return a 422 if this card has no back face.</param>
         /// <param name="version">The image version to return when using the image format: small, normal, large, png, art_crop, or border_crop. Defaults to large.</param>
         /// <param name="pretty">If true, the returned JSON will be prettified. Avoid using for production code.</param>
-        public async Task<HttpResponseMessage> GetCardsMtgoId(int id, string? format = null, string? face = null, string? version = null, string? pretty = null)
+        /// <exception cref="ScryfallException">Thrown when the API returns an error</exception>
+        /// <exception cref="NullReferenceException">Thrown when a cast fails</exception>
+        /// <exception cref="Exception">Thrown when an unexpected type is received</exception>
+        public async Task<Card> GetCardsMtgoId(int id, string? format = null, string? face = null, string? version = null, string? pretty = null)
         {
             NameValueCollection query = HttpUtility.ParseQueryString("");
             if (format is not null) query["format"] = format;
@@ -197,7 +310,25 @@ namespace ScryfallWrapper.Requests
             {
                 Query = query.ToString()
             };
-            return await _httpClient.GetAsync(builder.Uri);
+
+            HttpResponseMessage response = await _httpClient.GetAsync(builder.Uri);
+            string json = await response.Content.ReadAsStringAsync();
+            JObject jObject = JObject.Parse(json);
+            string? objectValue = (string?)jObject["object"];
+
+            if (objectValue == "card")
+            {
+                Card? card = jObject.ToObject<Card>();
+                return card ?? throw new NullReferenceException();
+            }
+            else if (objectValue == "error")
+            {
+                throw jObject.ToObject<ScryfallException>() ?? throw new NullReferenceException();
+            }
+            else
+            {
+                throw new Exception($"Unexpected type received: {objectValue}");
+            }
         }
 
         /// <summary>
@@ -208,7 +339,10 @@ namespace ScryfallWrapper.Requests
         /// <param name="face">If using the image format and this parameter has the value back, the back face of the card will be returned. Will return a 422 if this card has no back face.</param>
         /// <param name="version">The image version to return when using the image format: small, normal, large, png, art_crop, or border_crop. Defaults to large.</param>
         /// <param name="pretty">If true, the returned JSON will be prettified. Avoid using for production code.</param>
-        public async Task<HttpResponseMessage> GetCardsArenaId(int id, string? format = null, string? face = null, string? version = null, string? pretty = null)
+        /// <exception cref="ScryfallException">Thrown when the API returns an error</exception>
+        /// <exception cref="NullReferenceException">Thrown when a cast fails</exception>
+        /// <exception cref="Exception">Thrown when an unexpected type is received</exception>
+        public async Task<Card> GetCardsArenaId(int id, string? format = null, string? face = null, string? version = null, string? pretty = null)
         {
             NameValueCollection query = HttpUtility.ParseQueryString("");
             if (format is not null) query["format"] = format;
@@ -219,7 +353,25 @@ namespace ScryfallWrapper.Requests
             {
                 Query = query.ToString()
             };
-            return await _httpClient.GetAsync(builder.Uri);
+
+            HttpResponseMessage response = await _httpClient.GetAsync(builder.Uri);
+            string json = await response.Content.ReadAsStringAsync();
+            JObject jObject = JObject.Parse(json);
+            string? objectValue = (string?)jObject["object"];
+
+            if (objectValue == "card")
+            {
+                Card? card = jObject.ToObject<Card>();
+                return card ?? throw new NullReferenceException();
+            }
+            else if (objectValue == "error")
+            {
+                throw jObject.ToObject<ScryfallException>() ?? throw new NullReferenceException();
+            }
+            else
+            {
+                throw new Exception($"Unexpected type received: {objectValue}");
+            }
         }
 
         /// <summary>
@@ -230,7 +382,10 @@ namespace ScryfallWrapper.Requests
         /// <param name="face">If using the image format and this parameter has the value back, the back face of the card will be returned. Will return a 422 if this card has no back face.</param>
         /// <param name="version">The image version to return when using the image format: small, normal, large, png, art_crop, or border_crop. Defaults to large.</param>
         /// <param name="pretty">If true, the returned JSON will be prettified. Avoid using for production code.</param>
-        public async Task<HttpResponseMessage> GetCardsTcgplayerId(int id, string? format = null, string? face = null, string? version = null, string? pretty = null)
+        /// <exception cref="ScryfallException">Thrown when the API returns an error</exception>
+        /// <exception cref="NullReferenceException">Thrown when a cast fails</exception>
+        /// <exception cref="Exception">Thrown when an unexpected type is received</exception>
+        public async Task<Card> GetCardsTcgplayerId(int id, string? format = null, string? face = null, string? version = null, string? pretty = null)
         {
             NameValueCollection query = HttpUtility.ParseQueryString("");
             if (format is not null) query["format"] = format;
@@ -241,7 +396,25 @@ namespace ScryfallWrapper.Requests
             {
                 Query = query.ToString()
             };
-            return await _httpClient.GetAsync(builder.Uri);
+
+            HttpResponseMessage response = await _httpClient.GetAsync(builder.Uri);
+            string json = await response.Content.ReadAsStringAsync();
+            JObject jObject = JObject.Parse(json);
+            string? objectValue = (string?)jObject["object"];
+
+            if (objectValue == "card")
+            {
+                Card? card = jObject.ToObject<Card>();
+                return card ?? throw new NullReferenceException();
+            }
+            else if (objectValue == "error")
+            {
+                throw jObject.ToObject<ScryfallException>() ?? throw new NullReferenceException();
+            }
+            else
+            {
+                throw new Exception($"Unexpected type received: {objectValue}");
+            }
         }
 
         /// <summary>
@@ -252,7 +425,10 @@ namespace ScryfallWrapper.Requests
         /// <param name="face">If using the image format and this parameter has the value back, the back face of the card will be returned. Will return a 422 if this card has no back face.</param>
         /// <param name="version">The image version to return when using the image format: small, normal, large, png, art_crop, or border_crop. Defaults to large.</param>
         /// <param name="pretty">If true, the returned JSON will be prettified. Avoid using for production code.</param>
-        public async Task<HttpResponseMessage> GetCardsCardmarketId(int id, string? format = null, string? face = null, string? version = null, string? pretty = null)
+        /// <exception cref="ScryfallException">Thrown when the API returns an error</exception>
+        /// <exception cref="NullReferenceException">Thrown when a cast fails</exception>
+        /// <exception cref="Exception">Thrown when an unexpected type is received</exception>
+        public async Task<Card> GetCardsCardmarketId(int id, string? format = null, string? face = null, string? version = null, string? pretty = null)
         {
             NameValueCollection query = HttpUtility.ParseQueryString("");
             if (format is not null) query["format"] = format;
@@ -263,7 +439,25 @@ namespace ScryfallWrapper.Requests
             {
                 Query = query.ToString()
             };
-            return await _httpClient.GetAsync(builder.Uri);
+
+            HttpResponseMessage response = await _httpClient.GetAsync(builder.Uri);
+            string json = await response.Content.ReadAsStringAsync();
+            JObject jObject = JObject.Parse(json);
+            string? objectValue = (string?)jObject["object"];
+
+            if (objectValue == "card")
+            {
+                Card? card = jObject.ToObject<Card>();
+                return card ?? throw new NullReferenceException();
+            }
+            else if (objectValue == "error")
+            {
+                throw jObject.ToObject<ScryfallException>() ?? throw new NullReferenceException();
+            }
+            else
+            {
+                throw new Exception($"Unexpected type received: {objectValue}");
+            }
         }
 
         /// <summary>
@@ -274,7 +468,10 @@ namespace ScryfallWrapper.Requests
         /// <param name="face">If using the image format and this parameter has the value back, the back face of the card will be returned. Will return a 422 if this card has no back face.</param>
         /// <param name="version">The image version to return when using the image format: small, normal, large, png, art_crop, or border_crop. Defaults to large.</param>
         /// <param name="pretty">If true, the returned JSON will be prettified. Avoid using for production code.</param>
-        public async Task<HttpResponseMessage> GetCardsId(int id, string? format = null, string? face = null, string? version = null, string? pretty = null)
+        /// <exception cref="ScryfallException">Thrown when the API returns an error</exception>
+        /// <exception cref="NullReferenceException">Thrown when a cast fails</exception>
+        /// <exception cref="Exception">Thrown when an unexpected type is received</exception>
+        public async Task<Card> GetCardsId(int id, string? format = null, string? face = null, string? version = null, string? pretty = null)
         {
             NameValueCollection query = HttpUtility.ParseQueryString("");
             if (format is not null) query["format"] = format;
@@ -285,7 +482,25 @@ namespace ScryfallWrapper.Requests
             {
                 Query = query.ToString()
             };
-            return await _httpClient.GetAsync(builder.Uri);
+
+            HttpResponseMessage response = await _httpClient.GetAsync(builder.Uri);
+            string json = await response.Content.ReadAsStringAsync();
+            JObject jObject = JObject.Parse(json);
+            string? objectValue = (string?)jObject["object"];
+
+            if (objectValue == "card")
+            {
+                Card? card = jObject.ToObject<Card>();
+                return card ?? throw new NullReferenceException();
+            }
+            else if (objectValue == "error")
+            {
+                throw jObject.ToObject<ScryfallException>() ?? throw new NullReferenceException();
+            }
+            else
+            {
+                throw new Exception($"Unexpected type received: {objectValue}");
+            }
         }
     }
 }
