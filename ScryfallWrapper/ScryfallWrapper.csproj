@@ -1,10 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Authors>Hamhub7</Authors>
+    <Description>A small wrapper for the various web requests to Scryfall's API</Description>
+    <Copyright>MIT License</Copyright>
+    <RepositoryUrl>https://github.com/hamhub7/ScryfallWrapper/tree/master/ScryfallWrapper</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <ItemGroup>
