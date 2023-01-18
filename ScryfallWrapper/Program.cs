@@ -1,6 +1,17 @@
-﻿using ScryfallWrapper.Objects;
+﻿using ScryfallWrapper.Errors;
+using ScryfallWrapper.Objects;
 using ScryfallWrapper.Requests;
 
 Scryfall scryfall = new();
-HttpResponseMessage response = await scryfall.GetCatalogCardNames();
-Console.WriteLine(await response.Content.ReadAsStringAsync());
+try
+{
+    ScryList<Set> sets = await scryfall.GetSets();
+    foreach (Set set in sets.Data)
+    {
+        Console.WriteLine(set.Name);
+    }
+}
+catch(ScryfallException se)
+{
+    Console.WriteLine(se.Message);
+}

@@ -33,20 +33,12 @@ namespace ScryfallWrapper.Errors
         /// </summary>
         public string[]? Warnings { get; }
 
-        public ScryfallException(int status, string code, string details) : base(details)
+        public ScryfallException(int status, string code, string details, string? type, string[]? warnings) : base(details)
         {
             Status = status;
             Code = code;
             Details = details;
-        }
-
-        public ScryfallException(int status, string code, string details, string? type) : this(status, code, details)
-        {
             Type = type;
-        }
-
-        public ScryfallException(int status, string code, string details, string? type, string[]? warnings) : this(status, code, details, type)
-        {
             Warnings = warnings;
         }
     }
